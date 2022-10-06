@@ -33,7 +33,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	wcex.hInstance = hInstance;
 	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = "RectangleWriterClass";
 	wcex.hIconSm = wcex.hIcon;
@@ -55,7 +55,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	{
 		for (int j = 0; j < COL_COUNT; j++)
 		{
-			int randomLength = rand() % (dwBytesRead - 1);
+			int randomLength = rand() % (dwBytesRead);
 			CopyMemory(matrix[i][j].buffer, readBuffer, randomLength - 1);
 			matrix[i][j].buffer[randomLength] = '\0';
 		}
@@ -80,6 +80,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	int rectWidth;
 	HDC hDC;
 	HPEN hPen, hOldPen;
+	HBRUSH hBrush, hOldBrush;
 	switch (Message)
 	{
 		case WM_PAINT:
@@ -91,6 +92,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 			{
 				for (int j = 0; j < COL_COUNT; j++)
 				{
+					hBrush = CreateSolidBrush(RGB(0, 0, 0));
+					hOldBrush = SelectObject(hDC, hBrush);
+					SetTextColor(hDC, RGB(0, 170, 0));
 					matrix[i][j].rect.left = rectWidth * j;
 					matrix[i][j].rect.right = matrix[i][j].rect.left + rectWidth;
 					matrix[i][j].rect.top = 0;
@@ -103,10 +107,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 					}
 					matrix[i][j].rect.left = rectWidth * j;
 					matrix[i][j].rect.right = matrix[i][j].rect.left + rectWidth;
-					hPen = CreatePen(PS_SOLID, 0, RGB(0, 0, 0));
+					hPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 					hOldPen = SelectObject(hDC, hPen);
 					Rectangle(hDC, matrix[i][j].rect.left, matrix[i][j].rect.top, matrix[i][j].rect.right,  matrix[i][j].rect.bottom);
 					SelectObject(hDC, hOldPen);
+					SelectObject(hDC, hOldBrush);
+					DeleteObject(hBrush);
 					DeleteObject(hPen);
 					SetBkMode(hDC, TRANSPARENT);
 					DrawText(hDC, matrix[i][j].buffer, -1, &(matrix[i][j].rect), DT_WORDBREAK | DT_LEFT | DT_EDITCONTROL);
@@ -120,19 +126,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hWnd, Message, wParam, lParam);
 }
-
-/*			GetClientRect(hWnd, &windowRect);
-			rectWidth = (windowRect.right - windowRect.left) / COL_COUNT;
-			hDC = BeginPaint(hWnd, &ps);
-			matrix[0][0].rect.left = 0;
-			matrix[0][0].rect.right = 100;
-			matrix[0][0].rect.top = 0;
-			matrix[0][0].rect.bottom = 0;
-			bHeight = 0;
-			beforeWidth = 100;
-			DrawText(hDC, matrix[0][0].buffer, -1, &(matrix[0][0].rect), DT_CALCRECT | DT_WORDBREAK | DT_LEFT | DT_EDITCONTROL);
-			beforeWidth = matrix[0][0].rect.right - matrix[0][0].rect.left;
-			bHeight = matrix[0][0].rect.bottom - matrix[0][0].rect.top;
-			DrawText(hDC, matrix[0][0].buffer, -1, &(matrix[0][0].rect), DT_WORDBREAK | DT_LEFT | DT_EDITCONTROL);
-			EndPaint(hWnd, &ps);
-								itoa(matrix[i][j].rect.bottom, strRep, 10);*/
