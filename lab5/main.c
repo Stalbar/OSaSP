@@ -12,6 +12,7 @@ HANDLE* hThreads;
 int CountWords(char*);
 char** BreakBufferInWords(char*);
 char*** BreakWordsInChunks(char**, char*);
+void QuickSort(char** chunk, int first, int last);
 
 int main()
 {
@@ -24,18 +25,14 @@ int main()
 	char*** chunks = BreakWordsInChunks(words, buffer);
 	int wordCountPerChunk = CountWords(buffer) / THREAD_COUNT;
 	int lastChunksSize = CountWords(buffer) - (THREAD_COUNT - 1) * wordCountPerChunk;
-	for (int i = 0; i < THREAD_COUNT - 1; i++)
-	{
-		printf("Chunk %d:\n", i + 1);
-		for (int j = 0; j < wordCountPerChunk; j++)
-			printf("%s\n", chunks[i][j]);
-		printf("\n");
-	}
-	printf("Chunk %d\n", THREAD_COUNT);
-	for (int j = 0; j < lastChunksSize; j++)
-		printf("%s\n", chunks[THREAD_COUNT - 1][j]);
+	printf("Chunk 1:\n");
+	for (int j = 0; j < wordCountPerChunk; j++)
+		printf("%s\n", chunks[0][j]);
 	printf("\n");
-	printf("Success");
+	printf("After sort: ");
+	QuickSort(chunks[0], 0, wordCountPerChunk - 1);
+	for (int j = 0; j < wordCountPerChunk; j++)
+		printf("%s\n", chunks[0][j]);
 	return 0;
 }
 
@@ -102,4 +99,34 @@ char*** BreakWordsInChunks(char** words, char* buffer)
 		count++;
 	}
 	return result;
+}
+
+void QuickSort(char** chunk, int first, int last)
+{
+	int i, j, pivot;
+	char* temp;
+	if (first < last)
+	{
+		pivot = first;
+		i = first;
+		j = last;
+		while (i < j)
+		{
+			while ((strcmp(chunk[i], chunk[pivot]) < 0) && (i < last))
+				i++;
+			while ((strcmp(chunk[j], chunk[pivot])) > 0)
+				j--;
+			if (i < j)
+			{
+				temp = chunk[i];
+				chunk[i] = chunk[j];
+				chunk[j] = temp;
+			}
+		}
+		temp = chunk[pivot];
+		chunk[pivot] = chunk[j];
+		chunk[j] = temp;
+		QuickSort(chunk, first, j - 1);
+		QuickSort(chunk, j + 1, last);
+	}
 }
