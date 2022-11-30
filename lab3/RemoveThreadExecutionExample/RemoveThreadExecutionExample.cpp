@@ -18,24 +18,24 @@ int main()
 		std::cout << "Failed to open process, error code: " << GetLastError() << std::endl;
 		return -1;
 	}
-	LPTSTR remoteLibFile = (LPTSTR)VirtualAllocEx(hProcess, NULL, lstrlen(dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
-	if (remoteLibFile == NULL)
+	LPTSTR remoteLib = (LPTSTR)VirtualAllocEx(hProcess, NULL, lstrlen(dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
+	if (remoteLib == NULL)
 	{
 		std::cout << "Failed VirtualAllocEx, error code: " << GetLastError() << std::endl;
 		return -1;
 	}
-	if (WriteProcessMemory(hProcess, remoteLibFile, (void*)dllPath, lstrlen(dllPath) + 1, NULL) == 0)
+	if (WriteProcessMemory(hProcess, remoteLib, (void*)dllPath, lstrlen(dllPath) + 1, NULL) == 0)
 	{
 		std::cout << "Failed WriteProcessMemory, error code: " << GetLastError() << std::endl;
 		return -1;
 	}
-	PTHREAD_START_ROUTINE startAddress = (PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
-	if (startAddress == NULL)
+	PTHREAD_START_ROUTINE startFunc = (PTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+	if (startFunc == NULL)
 	{
 		std::cout << "Failed GetProcAddress, error code: " << GetLastError() << std::endl;
 		return -1;
 	}
-	HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, startAddress, remoteLibFile, 0, NULL);
+	HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, startFunc, remoteLib, 0, NULL);
 	if (hThread == NULL)
 	{
 		std::cout << "Failed CreateRemoteThread, error code: " << GetLastError() << std::endl;

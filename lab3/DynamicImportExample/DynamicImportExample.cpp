@@ -7,6 +7,7 @@ typedef void __stdcall TReplace(const char* data, const char* replacement);
 int main()
 {
 	std::string localString = "local string";
+	std::cout << "Current local string: " << localString << std::endl;
 	HMODULE library = LoadLibrary(L"D:\\User Files\\University\\OsaSp\\lab3\\x64\\Debug\\StringReplaceDLL.dll");
 	if (library == NULL)
 	{
@@ -20,7 +21,6 @@ int main()
 		std::cout << "Failed GetProcAddress, error code: " << GetLastError() << std::endl;
 		return -1;
 	}
-	std::cout << "Current local string: " << localString << std::endl;
 	pReplace(localString.c_str(), "new string");
 	std::cout << "Local string after Replace function: " << localString << std::endl;
 	if (FreeLibrary(library) == 0)

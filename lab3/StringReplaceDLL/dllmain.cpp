@@ -2,6 +2,7 @@
 #include "pch.h"
 #include <iostream>
 #include <string>
+#include <windows.h>
 
 extern "C" __declspec(dllimport) void Replace(const char* data, const char* replacment);
 
@@ -14,6 +15,7 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
     case DLL_THREAD_ATTACH:
+        MessageBox(NULL, L"Attached", L"Attached", MB_OK);
         Replace("local string", "new string");
         break;
     case DLL_THREAD_DETACH:

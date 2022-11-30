@@ -6,7 +6,6 @@
 #define ROW_COUNT 5
 #define COL_COUNT 5
 #define BUFFER_SIZE 1024 * 1024
-#define BETWEEN_PIXELS
 
 typedef struct Cell
 {
